@@ -84,44 +84,68 @@ Ou acesse a documentacao interativa em [http://localhost:8080/swagger/index.html
 
 Este projeto segue Domain-Driven Design com 4 camadas. Cada camada tem uma responsabilidade clara e nao pode "pular" camadas:
 
-```
-HTTP Request
-     |
-     v
-[Presentation]  handlers + routers -- recebe HTTP, valida input, retorna JSON
-     |
-     v
-[Application]   services + mappers -- orquestra regras, converte DTOs <-> Entities
-     |
-     v
-[Domain]        entities + interfaces -- regras puras, sem tecnologia
-     |
-     v
-[Infrastructure] repositories + config -- implementa contratos do domain (MySQL, etc.)
+```mermaid
+flowchart TD
+    request(["HTTP Request"])
+
+    subgraph presentation ["Presentation — recebe HTTP, valida input, retorna JSON"]
+        routers["routers — registro de rotas Gin"]
+        handlers["handlers — recebe request, chama service, devolve response"]
+    end
+
+    subgraph application ["Application — orquestra regras, converte DTOs e Entities"]
+        services["services — logica de orquestracao e regras de negocio"]
+        mappers["mappers — converte Entity para Response e Request para Entity"]
+        messages["messages — DTOs de entrada (Request) e saida (Response)"]
+    end
+
+    subgraph domain ["Domain — regras puras, sem tecnologia"]
+        entities["entities — structs do dominio (TaskEntity)"]
+        domainInterfaces["interfaces — contratos do repositorio"]
+    end
+
+    subgraph infrastructure ["Infrastructure — implementa contratos do domain"]
+        repositories["repositories — implementacao concreta com SQL"]
+        config["config — carrega variaveis de ambiente"]
+        mysqlConn["mysql/connection — conexao via database/sql"]
+    end
+
+    request --> routers
+    routers --> handlers
+    handlers --> services
+    services --> mappers
+    mappers --> entities
+    services --> domainInterfaces
+    domainInterfaces -.->|"implementa"| repositories
+    repositories --> mysqlConn
+    config -.->|"injeta"| mysqlConn
 ```
 
 ### Fluxo de uma requisicao POST /v1/tasks
 
-```
-Client -> Router -> TaskHandler.CreateTask
-                        |
-                        v
-                    TaskService.Create
-                        |
-                        v
-                    TaskMapper.ToEntity
-                        |
-                        v
-                    TaskRepositoryMySQL.Create
-                        |
-                        v
-                    MySQL (INSERT INTO tasks ...)
-                        |
-                        v
-                    TaskMapper.ToResponse
-                        |
-                        v
-                    Handler retorna 201 + JSON
+```mermaid
+sequenceDiagram
+    participant Client as Cliente HTTP
+    participant Router as Router
+    participant Handler as TaskHandler
+    participant Service as TaskService
+    participant Mapper as TaskMapper
+    participant Repo as TaskRepositoryMySQL
+    participant DB as MySQL
+
+    Client->>Router: POST /v1/tasks
+    Router->>Handler: CreateTask()
+    Handler->>Service: Create(request)
+    Service->>Mapper: ToEntity(request)
+    Mapper-->>Service: TaskEntity
+    Service->>Repo: Create(entity)
+    Repo->>DB: INSERT INTO tasks ...
+    DB-->>Repo: ID gerado
+    Repo-->>Service: nil (sucesso)
+    Service->>Mapper: ToResponse(entity)
+    Mapper-->>Service: TaskResponse
+    Service-->>Handler: TaskResponse
+    Handler-->>Client: 201 Created + JSON
 ```
 
 ### Por que separar em camadas?

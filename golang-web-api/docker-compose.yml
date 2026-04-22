@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8
+    restart: unless-stopped
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: devpool123
+      MYSQL_DATABASE: devpool
+      MYSQL_USER: devpool
+      MYSQL_PASSWORD: devpool123
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "devpool", "-pdevpool123"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  mysql_data:

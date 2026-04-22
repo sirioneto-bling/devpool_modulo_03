@@ -1,0 +1,48 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Dependency directories
+vendor/
+
+# Go workspace files
+go.work
+go.work.sum
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+
+# Logs and debugging files
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.old
+*.swp
+*.swo
+*.DS_Store
+
+# Build directories
+bin/
+build/
+dist/
+
+# Environment files (each dev creates their own from the example)
+.env
+tmp/
+logs/
+
+# Docker-related files
+docker-compose.override.yml
+
+# Debug files
+**/__debug*

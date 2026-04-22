@@ -1,0 +1,18 @@
+meta {
+  name: Create Task
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/v1/tasks
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Estudar Go",
+    "description": "Completar o tour of Go"
+  }
+}

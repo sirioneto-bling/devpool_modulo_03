@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Go: web_api (debug)",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/golang-web-api/cmd/web_api",
+      "cwd": "${workspaceFolder}/golang-web-api",
+      "envFile": "${workspaceFolder}/golang-web-api/.github/envs/localhost.env",
+      "buildFlags": "-mod=mod"
+    }
+  ]
+}

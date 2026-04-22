@@ -171,7 +171,7 @@ devpool-base-web-api/
 │   ├── Makefile             # Comandos de desenvolvimento
 │   └── README.md            # Setup, arquitetura DDD e testes
 │
-├── php-web-api/             # API PHP -- pedidos, produtos e integracao com clientes
+├── simple-php-api/          # API PHP -- pedidos, produtos e integracao com clientes
 │   └── README.md            # Setup e documentacao da API PHP
 │
 └── README.md                # Este arquivo -- visao geral e arquitetura
@@ -186,7 +186,76 @@ Cada subprojeto possui seu proprio ambiente, dependencias e instrucoes de execuc
 | Subprojeto | Stack | Documentacao |
 |------------|-------|--------------|
 | **golang-web-api** | Go 1.24+, MySQL 8, Docker | [golang-web-api/README.md](golang-web-api/README.md) |
-| **php-web-api** | PHP, MySQL, Docker | [php-web-api/README.md](php-web-api/README.md) |
+| **simple-php-api** | PHP, MySQL, Docker | [simple-php-api/README.md](simple-php-api/README.md) |
+
+---
+
+## Como rodar o fluxo completo (PHP -> Go)
+
+Sequencia para subir os dois servicos integrados e testar a chamada PHP -> Go.
+
+### 1. Subir o ambiente PHP (que ja levanta o MySQL compartilhado)
+
+```bash
+cd simple-php-api
+cp .env.example .env
+docker compose up -d
+```
+
+Isso sobe dois containers: `devpool-webserver` (PHP em `localhost:88`) e `devpool-mysql` (MySQL exposto em `localhost:3312`).
+
+### 2. Garantir que a tabela `tasks` existe no MySQL
+
+A API Go grava em `devpool_erp` (mesmo banco do PHP). Crie a tabela se ainda nao existir:
+
+```bash
+docker exec -i devpool-mysql mysql -uroot -pasdf000 devpool_erp \
+  < ../golang-web-api/scripts_db/001_create_tasks.sql
+```
+
+### 3. Configurar o `.env` da API Go
+
+Crie `golang-web-api/.env` apontando para o MySQL do container PHP:
+
+```env
+APP_NAME=devpool-base-web-api
+API_PORT=8080
+ENV=development
+
+DB_HOST=localhost
+DB_PORT=3312
+DB_USER=root
+DB_PASSWORD=asdf000
+DB_NAME=devpool_erp
+DB_MAX_OPEN_CONNS=10
+DB_MAX_IDLE_CONNS=5
+```
+
+### 4. Subir a API Go via debug
+
+Abra o workspace `devpool_modulo_03` no Cursor/VS Code, va em **Run and Debug** (Ctrl+Shift+D), selecione **"Go: web_api (debug)"** e pressione **F5**.
+
+A API Go fica disponivel em `http://localhost:8080`.
+
+> A configuracao de debug ja esta versionada em `.vscode/launch.json`. Pre-requisitos: Go 1.24+ instalado e Delve (`go install github.com/go-delve/delve/cmd/dlv@latest`).
+
+### 5. Testar a integracao PHP -> Go
+
+```bash
+# Cria task via PHP, que internamente chama a API Go
+curl -X POST http://localhost:88/api/task/store \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Estudar Go", "description": "Completar o tour of Go"}'
+
+# Lista tasks via PHP
+curl http://localhost:88/api/task/index
+```
+
+### Como o PHP enxerga a API Go
+
+O container do PHP usa o DNS especial `host.docker.internal` para acessar a maquina host (onde a API Go roda em modo debug). Isso ja esta configurado em `simple-php-api/docker-compose.yml` via `extra_hosts: ["host.docker.internal:host-gateway"]`.
+
+> Se voce alterar o `docker-compose.yml`, recrie o container com `docker compose up -d` (o `restart` nao aplica mudancas no compose).
 
 ---
 

@@ -1,4 +1,4 @@
-.PHONY: run build test test-e2e test-coverage lint up-db down-db dev-init db-migrate db-shell clean
+.PHONY: run build test test-e2e test-coverage lint swagger up-db down-db dev-init db-migrate db-shell clean
 
 APP_NAME=devpool-base-web-api
 APP_SRC=./cmd/web_api/
@@ -44,6 +44,12 @@ test-coverage:
 	@go test ./... -coverprofile=coverage.out
 	@go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report: coverage.html"
+
+# ========================= Documentation =========================
+
+swagger:
+	@echo "Generating Swagger docs..."
+	@swag init -g cmd/web_api/main.go -o docs/swagger --parseInternal
 
 # ========================= Quality =========================
 

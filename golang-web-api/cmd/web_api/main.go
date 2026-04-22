@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	_ "github.com/bling-lwsa/devpool-base-web-api/docs/swagger"
 	"github.com/bling-lwsa/devpool-base-web-api/internal/app/services"
 	"github.com/bling-lwsa/devpool-base-web-api/internal/infrastructure/config"
 	"github.com/bling-lwsa/devpool-base-web-api/internal/infrastructure/mysql"
@@ -20,6 +21,11 @@ import (
 	"github.com/bling-lwsa/devpool-base-web-api/internal/presentation/web_api/routers"
 )
 
+// @title           devpool-base-web-api
+// @version         1.0
+// @description     API educacional de Tasks em Go -- arquitetura DDD simplificada.
+// @host            localhost:8080
+// @BasePath        /v1
 func main() {
 	// ---- 1. Load .env (ignored in production where env vars come from the orchestrator) ----
 	godotenv.Load()

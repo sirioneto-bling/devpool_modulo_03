@@ -10,7 +10,6 @@ Chassi educacional em Go para profissionais de outras areas que estao migrando p
 
 - [Go 1.24+](https://go.dev/doc/install)
 - [Docker](https://docs.docker.com/get-docker/) e Docker Compose
-- [Bruno](https://www.usebruno.com/) (opcional, para testar a API)
 - Um editor com suporte a Go (VS Code com extensao Go, ou GoLand)
 
 ### 1. Clone o repositorio
@@ -59,7 +58,7 @@ curl -X POST http://localhost:8080/v1/tasks \
 curl http://localhost:8080/v1/tasks
 ```
 
-Ou abra o [Bruno](https://www.usebruno.com/), aponte para a pasta `docs/bruno/`, selecione o environment "Local" e use os requests prontos.
+Ou acesse a documentacao interativa em [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html) para explorar e testar todos os endpoints via Swagger UI.
 
 ---
 
@@ -73,6 +72,7 @@ Ou abra o [Bruno](https://www.usebruno.com/), aponte para a pasta `docs/bruno/`,
 | `make test` | Executa todos os testes (unitarios + e2e) |
 | `make test-e2e` | Executa apenas os testes e2e (camada de presentation) |
 | `make test-coverage` | Gera relatorio de cobertura em `coverage.html` |
+| `make swagger` | Regenera a documentacao Swagger a partir das annotations |
 | `make lint` | Executa o linter (`golangci-lint`) |
 | `make up-db` | Sobe o container MySQL |
 | `make down-db` | Para e remove os containers |
@@ -180,7 +180,7 @@ devpool-base-web-api/
   scripts_db/
     001_create_tasks.sql                   # DDL de criacao da tabela
   docs/
-    bruno/                                 # Collection Bruno API client
+    swagger/                               # Swagger docs gerados pelo swaggo (make swagger)
   .github/
     envs/
       localhost.env                        # Variaveis de ambiente exemplo
@@ -446,5 +446,5 @@ defer db.Close()  // sera chamado quando main() terminar, nao importa como
 - [MySQL 8 Reference](https://dev.mysql.com/doc/refman/8.0/en/) -- documentacao MySQL
 - [Docker Docs](https://docs.docker.com/) -- documentacao Docker
 - [Docker Compose](https://docs.docker.com/compose/) -- documentacao Docker Compose
-- [Bruno](https://www.usebruno.com/) -- API client open-source (alternativa ao Postman)
-- [Bruno Docs](https://docs.usebruno.com/) -- documentacao do Bruno
+- [swaggo/swag](https://github.com/swaggo/swag) -- gerador de Swagger docs a partir de annotations Go
+- [gin-swagger](https://github.com/swaggo/gin-swagger) -- middleware Swagger UI para Gin

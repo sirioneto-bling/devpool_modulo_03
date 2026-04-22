@@ -1,0 +1,158 @@
+basePath: /v1
+definitions:
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: error message
+        type: string
+    type: object
+  handlers.HealthChecks:
+    properties:
+      mysql:
+        example: healthy
+        type: string
+    type: object
+  handlers.HealthResponse:
+    properties:
+      checks:
+        $ref: '#/definitions/handlers.HealthChecks'
+      status:
+        example: healthy
+        type: string
+    type: object
+  handlers.StatusResponse:
+    properties:
+      status:
+        example: alive
+        type: string
+    type: object
+  messages.CreateTaskRequest:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  messages.TaskResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API educacional de Tasks em Go -- arquitetura DDD simplificada.
+  title: devpool-base-web-api
+  version: "1.0"
+paths:
+  /health:
+    get:
+      description: Verifica a saude geral da aplicacao e do banco de dados.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.HealthResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/handlers.HealthResponse'
+      summary: Health check
+      tags:
+      - Health
+  /livez:
+    get:
+      description: Retorna 200 se o processo esta vivo. Usado pelo Kubernetes para
+        decidir se reinicia o container.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.StatusResponse'
+      summary: Liveness probe
+      tags:
+      - Health
+  /readyz:
+    get:
+      description: Verifica se a aplicacao esta pronta para receber trafego (conexao
+        com banco OK).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.StatusResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/handlers.StatusResponse'
+      summary: Readiness probe
+      tags:
+      - Health
+  /tasks:
+    get:
+      description: Retorna todas as tasks cadastradas.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/messages.TaskResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Listar tasks
+      tags:
+      - Tasks
+    post:
+      consumes:
+      - application/json
+      description: Cria uma nova task com titulo e descricao opcional. Status inicial
+        "pending".
+      parameters:
+      - description: Dados da task
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/messages.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/messages.TaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Criar task
+      tags:
+      - Tasks
+swagger: "2.0"

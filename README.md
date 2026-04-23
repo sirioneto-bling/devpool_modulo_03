@@ -23,9 +23,10 @@ Neste modulo, extraimos o dominio de **Clientes** para um microsservico Go dedic
 
 ```mermaid
 graph LR
+    frontend["Vue.js (Frontend)"]
+
     subgraph phpApi ["PHP Web API (monolito)"]
         vendas["Vendas / Pedidos"]
-        produtos["Produtos"]
     end
 
     subgraph goApi ["Go Microservice"]
@@ -37,13 +38,16 @@ graph LR
         mysqlGo["MySQL - Go"]
     end
 
+    blingApi["API Bling (externa)"]
+
+    frontend -->|"HTTP"| vendas
+    frontend -->|"HTTP REST"| blingApi
     vendas -->|"HTTP REST"| clientes
     vendas --> mysqlPhp
-    produtos --> mysqlPhp
     clientes --> mysqlGo
 ```
 
-A API PHP mantem seu banco MySQL proprio para pedidos e produtos. O microsservico Go possui seu banco isolado para clientes. A comunicacao entre os dois e feita via HTTP REST -- sem acoplamento a nivel de banco de dados.
+A API PHP mantem seu banco MySQL proprio para pedidos. O microsservico Go possui seu banco isolado para clientes. Produtos sao consultados pelo frontend (Vue.js) diretamente na API externa do Bling, sem passar pelo webserver PHP. A comunicacao entre PHP e Go e feita via HTTP REST -- sem acoplamento a nivel de banco de dados.
 
 ---
 

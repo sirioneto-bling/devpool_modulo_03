@@ -214,7 +214,7 @@ A API Go grava em `devpool_erp` (mesmo banco do PHP). Crie a tabela se ainda nao
 
 ```bash
 docker exec -i devpool-mysql mysql -uroot -pasdf000 devpool_erp \
-  < ../golang-web-api/scripts_db/001_create_tasks.sql
+  < ../golang-web-api/scripts_db/01-database.sql
 ```
 
 ### 3. Configurar o `.env` da API Go

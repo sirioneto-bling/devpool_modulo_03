@@ -33,21 +33,17 @@ graph LR
         clientes["Clientes CRUD"]
     end
 
-    subgraph databases ["Databases"]
-        mysqlPhp["MySQL - PHP"]
-        mysqlGo["MySQL - Go"]
-    end
-
+    mysql["MySQL (compartilhado)"]
     blingApi["API Bling (externa)"]
 
     frontend -->|"HTTP"| vendas
     frontend -->|"HTTP REST"| blingApi
     vendas -->|"HTTP REST"| clientes
-    vendas --> mysqlPhp
-    clientes --> mysqlGo
+    vendas --> mysql
+    clientes --> mysql
 ```
 
-A API PHP mantem seu banco MySQL proprio para pedidos. O microsservico Go possui seu banco isolado para clientes. Produtos sao consultados pelo frontend (Vue.js) diretamente na API externa do Bling, sem passar pelo webserver PHP. A comunicacao entre PHP e Go e feita via HTTP REST -- sem acoplamento a nivel de banco de dados.
+A API PHP e o microsservico Go compartilham o mesmo banco MySQL (`devpool_erp`), cada um acessando suas proprias tabelas. Produtos sao consultados pelo frontend (Vue.js) diretamente na API externa do Bling, sem passar pelo webserver PHP. A comunicacao entre PHP e Go e feita via HTTP REST.
 
 ---
 
@@ -62,7 +58,7 @@ sequenceDiagram
     participant User as Usuario
     participant PhpAPI as PHP Web API
     participant GoAPI as Go Microservice
-    participant MySQL as MySQL Go
+    participant MySQL as MySQL
 
     User->>PhpAPI: Digita termo de busca
     PhpAPI->>GoAPI: GET /v1/clientes?q=termo
@@ -81,7 +77,7 @@ sequenceDiagram
     participant User as Usuario
     participant PhpAPI as PHP Web API
     participant GoAPI as Go Microservice
-    participant MySQL as MySQL Go
+    participant MySQL as MySQL
 
     User->>PhpAPI: Digita termo de busca do cliente
     PhpAPI->>GoAPI: GET /v1/clientes?q=termo
@@ -108,22 +104,21 @@ sequenceDiagram
     participant User as Usuario
     participant PhpAPI as PHP Web API
     participant GoAPI as Go Microservice
-    participant MySQLPhp as MySQL PHP
-    participant MySQLGo as MySQL Go
+    participant MySQL as MySQL
 
     User->>PhpAPI: Digita termo de busca do cliente
     PhpAPI->>GoAPI: GET /v1/clientes?q=termo
-    GoAPI->>MySQLGo: SELECT WHERE nome LIKE '%termo%'
-    MySQLGo-->>GoAPI: Lista de clientes
+    GoAPI->>MySQL: SELECT WHERE nome LIKE '%termo%'
+    MySQL-->>GoAPI: Lista de clientes
     GoAPI-->>PhpAPI: JSON com clientes encontrados
     PhpAPI-->>User: Exibe sugestoes para selecao
 
     User->>PhpAPI: Seleciona cliente (id=42)
-    PhpAPI->>MySQLPhp: SELECT vendas WHERE id_cliente = 42
-    MySQLPhp-->>PhpAPI: Lista de vendas
+    PhpAPI->>MySQL: SELECT vendas WHERE id_cliente = 42
+    MySQL-->>PhpAPI: Lista de vendas
     PhpAPI->>GoAPI: GET /v1/clientes/42
-    GoAPI->>MySQLGo: SELECT WHERE id = 42
-    MySQLGo-->>GoAPI: Dados do cliente
+    GoAPI->>MySQL: SELECT WHERE id = 42
+    MySQL-->>GoAPI: Dados do cliente
     GoAPI-->>PhpAPI: JSON com nome e dados do cliente
     PhpAPI->>PhpAPI: Combina vendas + dados do cliente
     PhpAPI-->>User: Vendas do cliente exibidas
@@ -137,7 +132,7 @@ O microsservico Go expoe um CRUD completo. O cadastro pode ser acessado tanto pe
 sequenceDiagram
     participant Client as Cliente HTTP
     participant GoAPI as Go Microservice
-    participant MySQL as MySQL Go
+    participant MySQL as MySQL
 
     Client->>GoAPI: POST /v1/clientes (criar)
     GoAPI->>MySQL: INSERT INTO clientes

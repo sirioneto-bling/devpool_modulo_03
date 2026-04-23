@@ -10,6 +10,18 @@
       "cwd": "${workspaceFolder}/golang-web-api",
       "envFile": "${workspaceFolder}/golang-web-api/.github/envs/localhost.env",
       "buildFlags": "-mod=mod"
+    },
+    {
+      "name": "PHP: debug",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "pathMappings": {
+        "/var/www/html": "${workspaceFolder}/simple-php-api/"
+      },
+      "xdebugSettings": {
+        "max_data": -1
+      }
     }
-  ]
+]
 }

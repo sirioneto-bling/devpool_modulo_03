@@ -202,7 +202,7 @@ devpool-base-web-api/
         repositories/
           task_repository_mysql.go         # Implementacao concreta com SQL
   scripts_db/
-    001_create_tasks.sql                   # DDL de criacao da tabela
+    01-database.sql                   # DDL das tabela
   docs/
     swagger/                               # Swagger docs gerados pelo swaggo (make swagger)
   .github/

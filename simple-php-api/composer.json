@@ -1,0 +1,25 @@
+{
+    "name": "wesley.vilaseca/projeto-mvc-devpool",
+    "description": "modelo mvc em PHP",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Wesley Vila Seca Sanches",
+            "email": "wesley.sanches@bling.com.br",
+            "role": "Developer"
+        }
+    ],
+    "config": {
+        "vendor": "vendor"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {
+        "vlucas/phpdotenv": "^5.3",
+        "guzzlehttp/guzzle": "^7.10"
+    }
+}

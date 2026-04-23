@@ -1,0 +1,36 @@
+services:
+  devpool-webserver:
+    build: .docker/bin/webserver
+    container_name: 'devpool-webserver'
+    restart: 'always'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${HOST_MACHINE_WEBSERVER_PORT-80}:80"
+    volumes:
+      - ./:/var/www/html
+      - .docker/config/php/php.ini:/usr/local/etc/php/php.ini
+      - .docker/config/vhosts:/etc/apache2/sites-enabled
+      - .docker/logs/apache2:/var/log/apache2
+    command: >
+      bash -c "
+        a2enmod rewrite &&
+        a2enmod headers &&
+        composer install --no-interaction --prefer-dist &&
+        apache2-foreground
+      "
+
+  devpool-mysql:
+    build: .docker/bin/mysql
+    container_name: 'devpool-mysql'
+    restart: 'always'
+    command: --sql_mode="" --optimizer_switch="index_merge_intersection=off"
+    ports:
+      - "${HOST_MACHINE_MYSQL_PORT}:3306"
+    volumes:
+      - .docker/data/mysql:/var/lib/mysql
+      - .docker/logs/mysql:/var/log/mysql
+      - .docker/config/mysql/initdb.sql:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: asdf000
+      MYSQL_DATABASE: devpool_erp

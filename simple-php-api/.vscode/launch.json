@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debugger",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/html": "${workspaceFolder}"
+            },
+            "xdebugSettings": {
+                "max_children": 1024,
+                "max_data": 4096
+            },
+            "log": true,
+            "stopOnEntry": false
+        }
+    ]
+}
